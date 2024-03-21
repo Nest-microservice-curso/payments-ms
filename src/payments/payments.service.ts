@@ -30,8 +30,8 @@ export class PaymentsService {
       },
       line_items: lineItems,
       mode: 'payment',
-      success_url: `http://localhost:${envs.port}/api/payments/success`,
-      cancel_url: `http://localhost:${envs.port}/api/payments/cancel`,
+      success_url: envs.stripeSuccessUrl,
+      cancel_url: envs.stripeCancelUrl,
     });
 
     return session;
@@ -43,7 +43,7 @@ export class PaymentsService {
 
     // const endpointSecret: string =
     //   'whsec_06fe71182bfa0a9ce8809563207dab8962b6e2cb6619225599c299d77abc9ed1';
-    const endpointSecret: string = 'whsec_MlZg5i9tJwegz6Bcr26mWlpikTcLNqAc';
+    const endpointSecret: string = envs.stripeEndpointSecret;
 
     try {
       event = this.stripe.webhooks.constructEvent(
