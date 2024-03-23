@@ -72,16 +72,12 @@ export class PaymentsService {
         // };
 
         const payload = {
-          stripePeimentId: objectWebhook.id,
+          stripePaymentId: objectWebhook.id,
           orderId: objectWebhook.metadata.orderId,
           receiptUrl: objectWebhook.receipt_url,
         };
-
-        this.client.emit('payment.succed', payload);
-        // this.logger.debug(payload);
-
-        // await firstValueFrom(this.client.send('changeOrderStatus', status));
-        // console.log('Despues de la actualizacion');
+        console.log(payload);
+        this.client.emit('order.payment.succed', payload);
 
         break;
       default:
