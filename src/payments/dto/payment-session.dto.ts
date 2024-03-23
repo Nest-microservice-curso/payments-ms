@@ -30,7 +30,7 @@ export class PaymenSessionItemDto {
 
   @IsNumber()
   @IsPositive()
-  unit_amount: number;
+  price: number;
 
   @IsNumber()
   @IsPositive()

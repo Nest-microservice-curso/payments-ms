@@ -21,7 +21,7 @@ export class PaymentsService {
           name: item.name,
           // description: 'add new channel',
         },
-        unit_amount: item.unit_amount * 100,
+        unit_amount: item.price * 100,
       },
       quantity: 2,
     }));

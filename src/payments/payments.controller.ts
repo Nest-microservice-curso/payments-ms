@@ -11,6 +11,7 @@ export class PaymentsController {
 
   @MessagePattern('create.payment.session')
   createPaymentSession(@Payload() paymentSessionDto: PaymentSessionDto) {
+    console.log(paymentSessionDto);
     return this.paymentsService.createPaymentSession(paymentSessionDto);
   }
 
