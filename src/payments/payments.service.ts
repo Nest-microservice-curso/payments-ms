@@ -1,11 +1,14 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { envs } from 'src/config';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { NATS_SERVICES, envs } from 'src/config';
 import Stripe from 'stripe';
 import { PaymentSessionDto } from './dto';
 import { Request, Response } from 'express';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class PaymentsService {
+  constructor(@Inject(NATS_SERVICES) private readonly client: ClientProxy) {}
+
   private readonly stripe = new Stripe(envs.stripeSecretKey);
   private logger = new Logger('Payments.service.ts');
 
@@ -34,7 +37,11 @@ export class PaymentsService {
       cancel_url: envs.stripeCancelUrl,
     });
 
-    return session;
+    return {
+      cancelUrl: session.cancel_url,
+      succesUrl: session.success_url,
+      url: session.url,
+    };
   }
 
   async stripeWebhook(req: Request, res: Response) {
@@ -44,7 +51,6 @@ export class PaymentsService {
     // const endpointSecret: string =
     //   'whsec_06fe71182bfa0a9ce8809563207dab8962b6e2cb6619225599c299d77abc9ed1';
     const endpointSecret: string = envs.stripeEndpointSecret;
-
     try {
       event = this.stripe.webhooks.constructEvent(
         req['rawBody'],
@@ -60,15 +66,25 @@ export class PaymentsService {
         this.logger.warn(
           `Pago realizado correctamente, orderId: ${objectWebhook.metadata.orderId}`,
         );
-        //TODO: llamar al microservicio
+        // const status = {
+        //   status: 'CONFIRMED',
+        //   id: objectWebhook.metadata.orderId,
+        // };
+
+        const payload = {
+          stripePeimentId: objectWebhook.id,
+          orderId: objectWebhook.metadata.orderId,
+          receiptUrl: objectWebhook.receipt_url,
+        };
+
+        this.client.emit('payment.succed', payload);
+        // this.logger.debug(payload);
+
+        // await firstValueFrom(this.client.send('changeOrderStatus', status));
+        // console.log('Despues de la actualizacion');
+
         break;
-      // case 'payment_method.attached':
-      //   const paymentMethod = event.data.object;
-      // console.log('PaymentMethod was attached to a Customer!');
-      // break;
-      // ... handle other event types
       default:
-      // console.log(`Unhandled event type ${event.type}`);
     }
     return res.status(200).json({ sig });
   }

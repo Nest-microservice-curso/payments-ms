@@ -1,19 +1,20 @@
-import { Body, Controller, Get, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, Logger, Post, Req, Res } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { PaymentSessionDto } from './dto';
 import { Request, Response } from 'express';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('payments')
 export class PaymentsController {
   private logger = new Logger('payment.controller.ts');
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  @Post('create-payment-session')
-  createPaymentSession(@Body() paymentSessionDto: PaymentSessionDto) {
+  @MessagePattern('create.payment.session')
+  createPaymentSession(@Payload() paymentSessionDto: PaymentSessionDto) {
     return this.paymentsService.createPaymentSession(paymentSessionDto);
   }
 
-  @Get('success')
+  @MessagePattern('stripe-success')
   success() {
     return {
       ok: true,
@@ -21,11 +22,11 @@ export class PaymentsController {
     };
   }
 
-  @Get('cancel')
+  @MessagePattern('stripe-cancel')
   cancel() {
     return {
       ok: false,
-      message: 'Payment Cancel',
+      message: 'Payment Cancel from MS',
     };
   }
 
