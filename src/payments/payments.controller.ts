@@ -1,4 +1,4 @@
-import { Controller, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, Logger, Post, Req, Res } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { PaymentSessionDto } from './dto';
 import { Request, Response } from 'express';
@@ -15,7 +15,7 @@ export class PaymentsController {
     return this.paymentsService.createPaymentSession(paymentSessionDto);
   }
 
-  @MessagePattern('stripe-success')
+  @Get('stripe-success')
   success() {
     return {
       ok: true,
@@ -23,7 +23,7 @@ export class PaymentsController {
     };
   }
 
-  @MessagePattern('stripe-cancel')
+  @Get('stripe-cancel')
   cancel() {
     return {
       ok: false,
